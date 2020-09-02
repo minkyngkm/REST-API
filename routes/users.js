@@ -14,8 +14,8 @@ router.get('/', async (req, res) =>{
 })
 
 // get one
-router.get('/:id', (req, res) =>{
-    // res.send(res.params.id)
+router.get('/:id', getUser, (req, res) =>{
+    res.json(res.user)
 })
 
 // create one
@@ -35,14 +35,35 @@ router.post('/', async (req, res) =>{
 
 
 // update one
-router.patch('/:id', (req, res) =>{
+router.patch('/:id', getUser, (req, res) =>{
 
 })
 
 
 // delete one 
-router.delete('/:id', (req, res) =>{
-
+router.delete('/:id', getUser, (req, res) =>{
+    try{
+        res.user.remove()
+        res.json({message: "user deleted"})
+    }catch(err){
+        res.status(500).json({message: message.err})
+    }
+    
 })
+
+// middleware function 
+async function getUser( req, res, next ){
+    let user 
+    try{
+        user = await User.findById(req.params.id)
+        if(user == null){
+        return res.status(404).json({message : "cannot find the user"})
+        }
+    }catch(err){
+        return res.status(500).json({message: message.err})
+    }
+    res.user = user
+    next()
+}
 
 module.exports = router
